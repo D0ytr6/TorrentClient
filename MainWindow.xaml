@@ -1,0 +1,143 @@
+﻿<Window x:Class="WpfTestWork.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+        xmlns:local="clr-namespace:WpfTestWork"
+        mc:Ignorable="d"
+        Title="MyTorrent" Height="600" Width="1200" 
+        >
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="35"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <Menu Grid.Row="0">
+            <MenuItem Header="File">
+                <MenuItem Header="Open" Command="{Binding CommandOpenTorrent}"/>
+                <MenuItem Header="Close" Command="{Binding CommandShutdown}"/>
+            </MenuItem>
+            <MenuItem Header="Service"></MenuItem>
+            <MenuItem Header="About"></MenuItem>
+        </Menu>
+
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="250"/>
+                <ColumnDefinition Width="300*"/>
+            </Grid.ColumnDefinitions>
+
+            <Grid HorizontalAlignment="Stretch" Grid.Column="0" Background="{DynamicResource PrimaryHueMidBrush}">
+                <ScrollViewer HorizontalAlignment="Stretch" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
+                    <StackPanel x:Name="Menu" Margin="10">
+                        <ItemsControl ItemsSource="{Binding Path=AllTorrentsMenuUI}"/>
+                        <ItemsControl ItemsSource="{Binding Path=TorrentsdownloadsMenuUI}"></ItemsControl>
+                        <ItemsControl ItemsSource="{Binding Path=TorrentsStopedMenuUI}"></ItemsControl>
+                        <ItemsControl ItemsSource="{Binding Path=TorrentsDelMenuUI}"></ItemsControl>
+                    </StackPanel>
+                </ScrollViewer>
+            </Grid>
+
+            <Grid Grid.Column="1">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="8*"/>
+                    <ColumnDefinition Width="87*"/>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="280"/>
+                    <RowDefinition Height="245"/>
+                </Grid.RowDefinitions>
+
+                <StackPanel Grid.Row="1" Grid.ColumnSpan="2">
+                    <Label FontSize="16" FontFamily="Consolas" >Torrent Information</Label>
+                    <TextBlock FontSize="14" FontFamily="Consolas" FontWeight="Normal">
+                        <TextBlock.Text>
+                            <MultiBinding StringFormat="{} Полное имя:  {0}">
+                                <Binding Path="SelectedTorrent.MyTorrentFile.Name" />
+                            </MultiBinding>
+                        </TextBlock.Text>
+                    </TextBlock >
+                    <TextBlock FontSize="14" FontFamily="Consolas" FontWeight="Normal">
+                        <TextBlock.Text>
+                            <MultiBinding StringFormat="{} Полный размер:  {0}">
+                                <Binding Path="SelectedTorrent.MySize" />
+                            </MultiBinding>
+                        </TextBlock.Text>
+                    </TextBlock >
+                    <TextBlock FontSize="14" FontFamily="Consolas" FontWeight="Normal" >
+                        <TextBlock.Text>
+                            <MultiBinding StringFormat="{} Дата Создания:  {0}">
+                                <Binding Path="SelectedTorrent.MyTorrentFile.CreationDate.Date" />
+                            </MultiBinding>
+                        </TextBlock.Text>
+                    </TextBlock>
+                    <TextBlock FontSize="14" FontFamily="Consolas" FontWeight="Normal">
+                        <TextBlock.Text>
+                            <MultiBinding StringFormat="{} Створений в:  {0}">
+                                <Binding Path="SelectedTorrent.MyTorrentFile.CreatedBy" />
+                            </MultiBinding>
+                        </TextBlock.Text>
+                    </TextBlock>
+                    <TextBlock FontSize="14" FontFamily="Consolas" FontWeight="Normal">
+                        <TextBlock.Text>
+                            <MultiBinding StringFormat="{} Завантажений з:  {0}">
+                                <Binding Path="SelectedTorrent.MyTorrentFile.PublisherUrl" />
+                            </MultiBinding>
+                        </TextBlock.Text>
+                    </TextBlock>
+
+
+                </StackPanel>
+
+                <DataGrid Grid.Row="0" x:Name="Datagrd" ItemsSource="{Binding TorrentsDataGrid, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}" SelectedItem="{Binding SelectedTorrent}" AutoGenerateColumns = "False" IsReadOnly="True" Grid.ColumnSpan="2" >
+
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Name" Binding="{Binding Path = MyName}" Width="125*"/>
+                        <DataGridTextColumn Header="Size" Binding="{Binding Path = MySize,Mode=OneWay, UpdateSourceTrigger=PropertyChanged}" Width="100*"/>
+                        <DataGridTemplateColumn x:Name="TemColumn" Header="Progress" Width="125*">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <ProgressBar Value="{Binding MyPercentageDownloaded,Mode=OneWay,UpdateSourceTrigger=PropertyChanged}" Minimum="0" Maximum="100" />
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                        <DataGridTextColumn Header="State" Binding="{Binding Path = MyState, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}" Width="100*"/>
+                        <DataGridTextColumn Header="Download" Binding="{Binding Path = MySpeed, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}" Width="100*"/>
+                        <DataGridTextColumn Header="Upload" Binding="{Binding Path = MySpeedUpload, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}" Width="100*"/>
+                    </DataGrid.Columns>
+
+                    <DataGrid.ContextMenu>
+                        <ContextMenu>
+                            <MenuItem Header="Скачать" Command="{Binding CommandDownload}"
+           CommandParameter="{Binding PlacementTarget.SelectedItem,
+                   RelativeSource={RelativeSource FindAncestor,
+                   AncestorType={x:Type ContextMenu}}}"/>
+
+                            <MenuItem Header="Стоп" Command="{Binding GetRowInfoCommandStop}"
+           CommandParameter="{Binding PlacementTarget.SelectedItem,
+                   RelativeSource={RelativeSource FindAncestor,
+                   AncestorType={x:Type ContextMenu}}}"/>
+
+                            <MenuItem Header="Удалить" Command="{Binding GetRowInfoCommandDel}"
+           CommandParameter="{Binding PlacementTarget.SelectedItem,
+                   RelativeSource={RelativeSource FindAncestor,
+                   AncestorType={x:Type ContextMenu}}}"/>
+
+                        </ContextMenu>
+                    </DataGrid.ContextMenu>
+
+
+                </DataGrid>
+
+
+            </Grid>
+
+        </Grid>
+
+
+
+    </Grid>
+</Window>
