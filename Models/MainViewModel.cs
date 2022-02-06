@@ -32,6 +32,8 @@ namespace WpfTestWork.Models
         public List<SubItem> StopListUI = new List<SubItem>();
         public List<SubItem> FinishListUI = new List<SubItem>();
 
+        public List<SubItem> TestListCommit = new List<SubItem>();
+
         public ObservableCollection<TorrentState> Torrentsdownloads { get; set; } = new ObservableCollection<TorrentState>();
         public ObservableCollection<TorrentState> TorrentStopped { get; set; } = new ObservableCollection<TorrentState>();
 
